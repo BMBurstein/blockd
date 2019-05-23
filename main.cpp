@@ -2,6 +2,7 @@
 #include <array>
 #include <queue>
 #include <random>
+#include <string>
 #include <vector>
 
 class Board {
@@ -24,6 +25,8 @@ public:
             }
         }
     }
+
+    int score = 0;
 
     struct coord_t {
         coord_t(int row, int col) : row(row), col(col) {}
@@ -63,7 +66,8 @@ public:
         }
         std::stable_partition(board.begin(), board.end(), [](auto c){return c[0];});
 
-        return count*count;
+        score += count * count;
+        return count * count;
     }
 };
 
@@ -94,7 +98,9 @@ int main()
                  && mouseDown.x == event.mouseButton.x
                  && mouseDown.y == event.mouseButton.y)
                 {
-                    board.clear((299-event.mouseButton.y) / 20, event.mouseButton.x / 20);
+                    auto coord = window.mapPixelToCoords(sf::Vector2i{mouseDown.x, mouseDown.y});
+                    board.clear((299-coord.y) / 20, coord.x / 20);
+                    window.setTitle("Blockd - " + std::to_string(board.score));
                 }
             }
         }
