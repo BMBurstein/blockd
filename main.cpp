@@ -77,16 +77,22 @@ int main()
     sf::RenderWindow window(sf::VideoMode(200, 300), "Blockd");
     sf::Color colors[] = {sf::Color::Red, sf::Color::Green, sf::Color::Blue};
 
+    sf::Event::MouseButtonEvent mouseDown;
     while (window.isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
+        while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
-            else if (event.type == sf::Event::MouseButtonPressed)
+            else if (event.type == sf::Event::MouseButtonPressed) {
+                mouseDown = event.mouseButton;
+            }
+            else if (event.type == sf::Event::MouseButtonReleased)
             {
-                if (event.mouseButton.button == sf::Mouse::Left)
+                if (event.mouseButton.button == sf::Mouse::Left
+                 && mouseDown.button == sf::Mouse::Left
+                 && mouseDown.x == event.mouseButton.x
+                 && mouseDown.y == event.mouseButton.y)
                 {
                     board.clear((299-event.mouseButton.y) / 20, event.mouseButton.x / 20);
                 }
