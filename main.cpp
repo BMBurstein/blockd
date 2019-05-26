@@ -14,6 +14,7 @@ public:
     typedef std::array<std::array<int, HEIGHT>, WIDTH> board_t;
 
     board_t board{};
+    int score = 0;
 
     Board() {
         std::random_device rd;  //Will be used to obtain a seed for the random number engine
@@ -26,19 +27,17 @@ public:
         }
     }
 
-    int score = 0;
-
-    struct coord_t {
-        coord_t(int row, int col) : row(row), col(col) {}
-        int row;
-        int col;
-    };
-
     int clear(int row, int col) {
         auto group = board[col][row];
         if(group == 0) {
             return 0;
         }
+
+        struct coord_t {
+            coord_t(int row, int col) : row(row), col(col) {}
+            int row;
+            int col;
+        };
 
         int count = 0;
         std::queue<coord_t> waiting;
@@ -68,6 +67,35 @@ public:
 
         score += count * count;
         return count * count;
+    }
+
+    bool hasMore() {
+        for(auto& c : board) {
+            for(int i=1; i<c.size(); ++i) {
+                if(c[i] == 0)
+                    break;
+                if(c[i] == c[i-1])
+                    return true;
+            }
+        }
+        for(int i=0; i<HEIGHT; ++i) {
+            for(int j=1; j<WIDTH; ++j) {
+                if(board[j][i] != 0 && board[j][i] == board[j-1][i])
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    int countBlocks() {
+        int count = 0;
+        for(auto& c : board) {
+            for(auto& v : c) {
+                if(v)
+                    ++count;
+            }
+        }
+        return count;
     }
 };
 
@@ -100,7 +128,9 @@ int main()
                 {
                     auto coord = window.mapPixelToCoords(sf::Vector2i{mouseDown.x, mouseDown.y});
                     board.clear((299-coord.y) / 20, coord.x / 20);
-                    window.setTitle("Blockd - " + std::to_string(board.score));
+                    window.setTitle("Blockd - " + std::to_string(board.score) + " " + std::to_string(board.countBlocks())
+                        + '/' + std::to_string(board.HEIGHT * board.WIDTH));
+                    if(!board.hasMore()) window.close();
                 }
             }
         }
